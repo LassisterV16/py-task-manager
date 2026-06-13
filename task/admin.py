@@ -1,10 +1,13 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-from task.models import Worker, Position, TaskType, Task
+from task.models import Position, TaskType, Task
 
 
-@admin.register(Worker)
+user = get_user_model()
+
+@admin.register(user)
 class WorkerAdmin(UserAdmin):
     list_display = UserAdmin.list_display + ("position",)
     fieldsets = UserAdmin.fieldsets + (
@@ -40,3 +43,6 @@ class TaskTypeAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     search_fields = ("name", "description",)
     list_filter = ("deadline", "is_completed", "priority", "task_type")
+    list_display = admin.ModelAdmin.list_display + (
+        "task_type", "deadline", "is_completed", "priority",
+    )
