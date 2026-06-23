@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>TaskFlow</h1>
+    <p>Welcome to the main page with task's statistics</p>
+    <h2>Dynamic content</h2>
+    <p>Up-to-date information on the tasks:</p>
+    <ul>
+        <li><strong>Total tasks:</strong> {{ num_tasks }}</li>
+        <li><strong>Completed tasks:</strong> {{ completed_tasks }}</li>
+        <li><strong>Tasks in progress:</strong> {{ tasks_in_progress }}</li>
+        <li><strong>Failed deadlines:</strong> {{ failed_deadlines }}</li>
+    </ul>
+{% endblock %}

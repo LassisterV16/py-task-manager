@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+  <h1>
+    Tasks
+    <a href="{% url 'task:task-create' %}" class="btn btn-primary link-to-page">
+      Create
+    </a>
+  </h1>
+
+  <form class="form-inline mb-3" method="get" action="">
+    {{ search_form|crispy }}
+    <input type="submit" value="🔎" class="btn btn-secondary">
+  </form>
+
+  {% if task_list %}
+    <table class="table">
+      <tr>
+        <th>Name</th>
+        <th>Deadline</th>
+        <th>Priority</th>
+        <th>Update</th>
+        <th>Delete</th>
+      </tr>
+
+      {% for task in task_list %}
+        <tr>
+          <td>
+            {{ task.name }}
+          </td>
+          <td>
+            {{ task.deadline }}
+          </td>
+          <td>
+            {{ task.priority }}
+          </td>
+          <td>
+            <a href="{% url 'task:task-update' pk=task.id %}">
+              Update
+            </a>
+          </td>
+          <td>
+            <a style="color: red"
+              href="{% url 'task:task-delete' pk=task.id %}">
+              Delete
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+
+  {% else %}
+      <p>There are no tasks in the TaskFlow.</p>
+  {% endif %}
+{% endblock %}
