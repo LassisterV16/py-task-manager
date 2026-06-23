@@ -107,8 +107,6 @@ AUTH_USER_MODEL = "task.Worker"
 
 LOGIN_REDIRECT_URL = "/"
 
-LOGOUT_REDIRECT_URL = "accounts/login/"
-
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
