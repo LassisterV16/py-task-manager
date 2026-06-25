@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.shortcuts import render
 from django.views import generic
 
+from task.forms import TaskForm, TaskUpdateForm
 from task.models import Task
 
 
@@ -32,7 +33,7 @@ def index(request: HttpRequest) -> HttpResponse:
     return render(request, "task/index.html", context=context)
 
 
-class TaskList(LoginRequiredMixin, generic.ListView):
+class TaskListView(LoginRequiredMixin, generic.ListView):
     model = Task
     context_object_name = "task_list"
     template_name = "task/task_list.html"
@@ -43,16 +44,27 @@ class TaskList(LoginRequiredMixin, generic.ListView):
         return queryset.filter(is_completed=False)
 
 
+class TaskDetailView(LoginRequiredMixin, generic.DetailView):
+    model = Task
+
+
+@login_required()
+def mark_task_completed(request:HttpRequest, pk: int) -> HttpResponse:
+    task = Task.objects.get(id=pk)
+    if not task.is_completed and (request.user in task.assignees.all() or request.user.position == "Admin"):
+        task.is_completed = True
+        task.save()
+    return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     model = Task
-    fields = ("name", "description", "deadline", "priority", "task_type", "assignees",)
+    form_class = TaskForm
     success_url = reverse_lazy("task:task-list")
 
 
 class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
     model = Task
-    fields = "__all__"
+    form_class = TaskUpdateForm
     success_url = reverse_lazy("task:task-list")
 
 
