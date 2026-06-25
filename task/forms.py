@@ -18,7 +18,15 @@ class WorkerCreationForm(UserCreationForm):
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = "__all__"
-        # widgets = {
-        #     "deadline": forms.DateInput(attrs={"type": "date"}),
-        # }
+        fields = ["name", "description", "deadline", "priority", "task_type", "assignees",]
+        widgets = {
+            "deadline": forms.DateInput(
+                attrs={"type": "date", "class": "form-control"}
+            ),
+            "assignees": forms.CheckboxSelectMultiple(),
+        }
+
+
+class TaskUpdateForm(TaskForm):
+    class Meta(TaskForm.Meta):
+        fields = TaskForm.Meta.fields + ["is_completed"]
