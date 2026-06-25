@@ -49,12 +49,14 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 @login_required()
-def mark_task_completed(request:HttpRequest, pk: int) -> HttpResponse:
+def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
     task = Task.objects.get(id=pk)
-    if not task.is_completed and (request.user in task.assignees.all() or request.user.position == "Admin"):
+    if (not task.is_completed and request.user in task.assignees.all()
+            or request.user.position == "Admin"):
         task.is_completed = True
         task.save()
     return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
+
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     model = Task

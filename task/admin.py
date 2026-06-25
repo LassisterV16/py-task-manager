@@ -7,6 +7,7 @@ from task.models import Position, TaskType, Task
 
 user = get_user_model()
 
+
 @admin.register(user)
 class WorkerAdmin(UserAdmin):
     list_display = UserAdmin.list_display + ("position",)
