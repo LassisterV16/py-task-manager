@@ -3,9 +3,11 @@
   <h1 class="mb-3">
     {{ task.name }}
     {% if not task.is_completed %}
-      <a href="{% url 'task:mark-task-completed' pk=task.id %}" class="btn btn-success link-to-page">
-        Mark as completed
-      </a>
+      {% if request.user in task.assignees.all or request.user.position == "Admin" %}
+        <a href="{% url 'task:mark-task-completed' pk=task.id %}" class="btn btn-success link-to-page">
+          Mark as completed
+        </a>
+      {% endif %}
     {% endif %}
   </h1>
   <h5 class="mb-3">📅{{ task.deadline }}</h5>
@@ -16,6 +18,8 @@
     {% endfor %}
   </ul>
   <div class="lead text-justify font-weight-normal mb-3">{{ task.description }}</div>
-  <a class="btn btn-outline-primary mr-3" href="{% url 'task:task-update' pk=task.id %}">Update</a>
-  <a class="btn btn-outline-danger" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
+  {% if request.user in task.assignees.all or request.user.position == "Admin" %}
+    <a class="btn btn-outline-primary mr-3" href="{% url 'task:task-update' pk=task.id %}">Update</a>
+    <a class="btn btn-outline-danger" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
+  {% endif %}
 {% endblock %}

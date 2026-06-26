@@ -19,9 +19,8 @@
       <tr>
         <th>Name</th>
         <th>Deadline</th>
-        <th>Priority</th>
-        <th>Update</th>
-        <th>Delete</th>
+        <th class="text-center">Priority</th>
+        <th class="text-center">Actions</th>
       </tr>
 
       {% for task in task_list %}
@@ -32,19 +31,14 @@
           <td>
             {{ task.deadline }}
           </td>
-          <td>
+          <td class="text-center">
             {{ task.priority }}
           </td>
-          <td>
-            <a href="{% url 'task:task-update' pk=task.id %}">
-              Update
-            </a>
-          </td>
-          <td>
-            <a style="color: red"
-              href="{% url 'task:task-delete' pk=task.id %}">
-              Delete
-            </a>
+          <td class="text-center">
+            {% if request.user in task.assignees.all or request.user.position == "Admin" %}
+              <a href="{% url 'task:task-update' pk=task.id %}">Update</a>
+              <a style="color: red" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
+            {% endif %}
           </td>
         </tr>
       {% endfor %}

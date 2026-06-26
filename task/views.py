@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -48,11 +48,11 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
     model = Task
 
 
-@login_required()
+@login_required
 def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
     task = Task.objects.get(id=pk)
-    if (not task.is_completed and request.user in task.assignees.all()
-            or request.user.position == "Admin"):
+    if (not task.is_completed and (request.user in task.assignees.all()
+                                   or request.user.position == "Admin")):
         task.is_completed = True
         task.save()
     return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
@@ -64,12 +64,34 @@ class TaskCreateView(LoginRequiredMixin, generic.CreateView):
     success_url = reverse_lazy("task:task-list")
 
 
-class TaskUpdateView(LoginRequiredMixin, generic.UpdateView):
+class TaskUpdateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    generic.UpdateView
+):
     model = Task
     form_class = TaskUpdateForm
     success_url = reverse_lazy("task:task-list")
 
+    def test_func(self):
+        task = self.get_object()
+        user = self.request.user
+        is_assignee = user in task.assignees.all()
+        is_admin = user.position == "Admin"
+        return is_assignee or is_admin
 
-class TaskDeleteView(LoginRequiredMixin, generic.DeleteView):
+
+class TaskDeleteView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    generic.DeleteView
+):
     model = Task
     success_url = reverse_lazy("task:task-list")
+
+    def test_func(self):
+        task = self.get_object()
+        user = self.request.user
+        is_assignee = user in task.assignees.all()
+        is_admin = user.position == "Admin"
+        return is_assignee or is_admin
