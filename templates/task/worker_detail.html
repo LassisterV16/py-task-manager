@@ -7,7 +7,7 @@
 
   <h5 class="mb-3">Position: {{ worker.position }}</h5>
 
-  {% if worker.tasks.all %}
+  {% if active_tasks %}
     <h6>Tasks in progress:</h6>
     <ul>
       {% for task in active_tasks %}

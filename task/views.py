@@ -7,7 +7,12 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.views import generic
 
-from task.forms import TaskForm, TaskUpdateForm, TaskNameSearchForm, WorkerNameUsernameSearchForm
+from task.forms import (
+    TaskForm,
+    TaskUpdateForm,
+    TaskNameSearchForm,
+    WorkerNameUsernameSearchForm
+)
 from task.models import Task
 
 
@@ -41,7 +46,9 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_completed=False)
+        queryset = super().get_queryset().filter(
+            is_completed=False
+        ).select_related("task_type").prefetch_related("assignees")
         form = TaskNameSearchForm(self.request.GET)
 
         if form.is_valid():
@@ -50,7 +57,7 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
             )
         return queryset
 
-    def get_context_data(self, *, object_list = None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super(TaskListView, self).get_context_data(**kwargs)
         name = self.request.GET.get("name", "")
         context["search_form"] = TaskNameSearchForm(initial={"name": name})
@@ -64,8 +71,11 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
 @login_required
 def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
     task = Task.objects.get(id=pk)
-    if (not task.is_completed and (request.user in task.assignees.all()
-                                   or request.user.position == "Admin")):
+    user = request.user
+    is_assignee = user in task.assignees.all()
+    is_admin = user.position and user.position.name == "Admin"
+    # return is_assignee or is_admin
+    if not task.is_completed and (is_assignee or is_admin):
         task.is_completed = True
         task.save()
     return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
@@ -90,7 +100,7 @@ class TaskUpdateView(
         task = self.get_object()
         user = self.request.user
         is_assignee = user in task.assignees.all()
-        is_admin = user.position == "Admin"
+        is_admin = user.position and user.position.name == "Admin"
         return is_assignee or is_admin
 
 
@@ -106,7 +116,7 @@ class TaskDeleteView(
         task = self.get_object()
         user = self.request.user
         is_assignee = user in task.assignees.all()
-        is_admin = user.position == "Admin"
+        is_admin = user.position and user.position.name == "Admin"
         return is_assignee or is_admin
 
 
@@ -124,11 +134,14 @@ class WorkerListView(LoginRequiredMixin, generic.ListView):
             return queryset.filter(
                 username__icontains=form.cleaned_data["username"]
             )
+        return queryset
 
-    def get_context_data(self, *, object_list = None, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super(WorkerListView, self).get_context_data(**kwargs)
         username = self.request.GET.get("username", "")
-        context["search_form"] = WorkerNameUsernameSearchForm(initial={"username": username})
+        context["search_form"] = WorkerNameUsernameSearchForm(
+            initial={"username": username}
+        )
         return context
 
 
@@ -136,12 +149,14 @@ class WorkerDetailView(LoginRequiredMixin, generic.DetailView):
     model = get_user_model()
 
     def get_queryset(self):
-        queryset = super().get_queryset().prefetch_related()
+        queryset = super().get_queryset().prefetch_related("tasks")
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(WorkerDetailView, self).get_context_data(**kwargs)
-        non_completed_tasks = Task.objects.filter(assignees=self.object, is_completed=False)
+        non_completed_tasks = self.object.tasks.filter(
+            is_completed=False
+        )
 
         context["active_tasks"] = non_completed_tasks
         return context
