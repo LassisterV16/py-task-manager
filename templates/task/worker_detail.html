@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <h1 class="mb-3">
+    {{ worker.username }} {{ worker.first_name }} {{ worker.last_name }}
+  </h1>
+
+  <h5 class="mb-3">Position: {{ worker.position }}</h5>
+
+  {% if worker.tasks.all %}
+    <h6>Tasks in progress:</h6>
+    <ul>
+      {% for task in active_tasks %}
+        <li><a href="{% url 'task:task-detail' pk=task.id %}">{{ task }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>This worker has no active tasks.</p>
+  {% endif %}
+
+
+{% endblock %}

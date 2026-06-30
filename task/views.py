@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
@@ -6,7 +7,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.views import generic
 
-from task.forms import TaskForm, TaskUpdateForm, TaskNameSearchForm
+from task.forms import TaskForm, TaskUpdateForm, TaskNameSearchForm, WorkerNameUsernameSearchForm
 from task.models import Task
 
 
@@ -107,3 +108,40 @@ class TaskDeleteView(
         is_assignee = user in task.assignees.all()
         is_admin = user.position == "Admin"
         return is_assignee or is_admin
+
+
+class WorkerListView(LoginRequiredMixin, generic.ListView):
+    model = get_user_model()
+    context_object_name = "worker_list"
+    template_name = "task/worker_list.html"
+    paginate_by = 5
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = WorkerNameUsernameSearchForm(self.request.GET)
+
+        if form.is_valid():
+            return queryset.filter(
+                username__icontains=form.cleaned_data["username"]
+            )
+
+    def get_context_data(self, *, object_list = None, **kwargs):
+        context = super(WorkerListView, self).get_context_data(**kwargs)
+        username = self.request.GET.get("username", "")
+        context["search_form"] = WorkerNameUsernameSearchForm(initial={"username": username})
+        return context
+
+
+class WorkerDetailView(LoginRequiredMixin, generic.DetailView):
+    model = get_user_model()
+
+    def get_queryset(self):
+        queryset = super().get_queryset().prefetch_related()
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(WorkerDetailView, self).get_context_data(**kwargs)
+        non_completed_tasks = Task.objects.filter(assignees=self.object, is_completed=False)
+
+        context["active_tasks"] = non_completed_tasks
+        return context

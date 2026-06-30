@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+  <h1>
+    Workers
+  </h1>
+
+  <form class="form-inline mb-3" method="get" action="">
+    {{ search_form|crispy }}
+    <input type="submit" value="🔎" class="btn btn-secondary">
+  </form>
+
+  {% if worker_list %}
+    <table class="table">
+      <tr>
+        <th>Username</th>
+        <th>Name</th>
+        <th class="text-center">Position</th>
+      </tr>
+
+      {% for worker in worker_list %}
+        <tr>
+          <td>
+            <a href="{% url 'task:worker-detail' pk=worker.id %}">{{ worker.username }}</a>
+          </td>
+          <td>
+            {{ worker.first_name }} {{ worker.last_name }}
+          </td>
+          <td class="text-center">
+            {{ worker.position }}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+
+  {% else %}
+      <p>There are no workers in the worker list.</p>
+  {% endif %}
+{% endblock %}
