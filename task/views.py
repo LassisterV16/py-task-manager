@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.shortcuts import render
 from django.views import generic
 
-from task.forms import TaskForm, TaskUpdateForm
+from task.forms import TaskForm, TaskUpdateForm, TaskNameSearchForm
 from task.models import Task
 
 
@@ -40,8 +40,20 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
     paginate_by = 5
 
     def get_queryset(self):
-        queryset = super().get_queryset()
-        return queryset.filter(is_completed=False)
+        queryset = super().get_queryset().filter(is_completed=False)
+        form = TaskNameSearchForm(self.request.GET)
+
+        if form.is_valid():
+            return queryset.filter(
+                name__icontains=form.cleaned_data["name"]
+            )
+        return queryset
+
+    def get_context_data(self, *, object_list = None, **kwargs):
+        context = super(TaskListView, self).get_context_data(**kwargs)
+        name = self.request.GET.get("name", "")
+        context["search_form"] = TaskNameSearchForm(initial={"name": name})
+        return context
 
 
 class TaskDetailView(LoginRequiredMixin, generic.DetailView):

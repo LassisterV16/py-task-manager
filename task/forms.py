@@ -33,3 +33,7 @@ class TaskForm(forms.ModelForm):
 class TaskUpdateForm(TaskForm):
     class Meta(TaskForm.Meta):
         fields = TaskForm.Meta.fields + ["is_completed"]
+
+
+class TaskNameSearchForm(forms.Form):
+    name = forms.CharField(max_length=255, required=False)
