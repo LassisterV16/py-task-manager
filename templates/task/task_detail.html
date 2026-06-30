@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+  
   <h1 class="mb-3">
     {{ task.name }}
     {% if not task.is_completed %}
@@ -10,16 +11,21 @@
       {% endif %}
     {% endif %}
   </h1>
+  
   <h5 class="mb-3">📅{{ task.deadline }}</h5>
+  
   <h6>Assignees:</h6>
   <ul class="list-unstyled mb-3">
     {% for person in task.assignees.all %}
-      <li>👤{{ person }}</li>
+      <li>👤<a href="{% url 'task:worker-detail' pk=person.id %}">{{ person }}</a></li>
     {% endfor %}
   </ul>
+  
   <div class="lead text-justify font-weight-normal mb-3">{{ task.description }}</div>
+  
   {% if request.user in task.assignees.all or request.user.position == "Admin" %}
     <a class="btn btn-outline-primary mr-3" href="{% url 'task:task-update' pk=task.id %}">Update</a>
     <a class="btn btn-outline-danger" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
   {% endif %}
+  
 {% endblock %}
