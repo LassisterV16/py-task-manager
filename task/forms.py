@@ -20,12 +20,13 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = [
             "name", "description", "deadline", "priority", "task_type",
-            "assignees",
+            "tags", "assignees",
         ]
         widgets = {
             "deadline": forms.DateInput(
                 attrs={"type": "date", "class": "form-control"}
             ),
+            "tags": forms.CheckboxSelectMultiple(),
             "assignees": forms.CheckboxSelectMultiple(),
         }
 

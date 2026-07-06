@@ -26,7 +26,12 @@
       {% for task in task_list %}
         <tr>
           <td>
-            <a href="{% url 'task:task-detail' pk=task.id %}">{{ task.name }}</a>
+            <a href="{% url 'task:task-detail' pk=task.id %}">{{ task.name }}</a><br>
+            {% for tag in task.tags.all %}
+              <a href="{% url 'task:task-list' %}?tag={{ tag.name }}">
+                <span class="badge badge-secondary mr-1">{{ tag.name }}</span>
+              </a>
+            {% endfor %}
           </td>
           <td>
             {{ task.deadline }}
@@ -36,7 +41,7 @@
           </td>
           <td class="text-center">
             {% if request.user in task.assignees.all or request.user.is_admin %}
-              <a href="{% url 'task:task-update' pk=task.id %}">Update</a>
+              <a href="{% url 'task:task-update' pk=task.id %}?next={{ request.get_full_path }}">Update</a>
               <a style="color: red" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
             {% endif %}
           </td>

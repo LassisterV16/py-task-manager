@@ -49,12 +49,19 @@ class TaskListView(LoginRequiredMixin, generic.ListView):
         queryset = super().get_queryset().filter(
             is_completed=False
         ).select_related("task_type").prefetch_related("assignees")
-        form = TaskNameSearchForm(self.request.GET)
 
+        tag = self.request.GET.get("tag", "")
+        if tag:
+            queryset = queryset.filter(
+                tags__name=tag
+            )
+
+        form = TaskNameSearchForm(self.request.GET)
         if form.is_valid():
-            return queryset.filter(
+            queryset = queryset.filter(
                 name__icontains=form.cleaned_data["name"]
             )
+
         return queryset
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -93,7 +100,9 @@ class TaskUpdateView(
 ):
     model = Task
     form_class = TaskUpdateForm
-    success_url = reverse_lazy("task:task-list")
+
+    def get_success_url(self):
+        return self.request.GET.get("next") or reverse_lazy("task:task-list")
 
     def test_func(self):
         task = self.get_object()

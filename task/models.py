@@ -33,6 +33,13 @@ class Worker(AbstractUser):
         return bool(self.position and self.position.name == "Admin")
 
 
+class Tag(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class Task(models.Model):
     class Priority(models.TextChoices):
         URGENT = "Urgent"
@@ -55,6 +62,11 @@ class Task(models.Model):
         related_name="tasks"
     )
     assignees = models.ManyToManyField(Worker, related_name="tasks")
+    tags = models.ManyToManyField(
+        Tag,
+        related_name="tasks",
+        blank=True
+    )
 
     def __str__(self):
         return self.name
