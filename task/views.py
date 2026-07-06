@@ -73,8 +73,7 @@ def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
     task = Task.objects.get(id=pk)
     user = request.user
     is_assignee = user in task.assignees.all()
-    is_admin = user.position and user.position.name == "Admin"
-    # return is_assignee or is_admin
+    is_admin = user.is_admin
     if not task.is_completed and (is_assignee or is_admin):
         task.is_completed = True
         task.save()
@@ -100,7 +99,7 @@ class TaskUpdateView(
         task = self.get_object()
         user = self.request.user
         is_assignee = user in task.assignees.all()
-        is_admin = user.position and user.position.name == "Admin"
+        is_admin = user.is_admin
         return is_assignee or is_admin
 
 
@@ -116,7 +115,7 @@ class TaskDeleteView(
         task = self.get_object()
         user = self.request.user
         is_assignee = user in task.assignees.all()
-        is_admin = user.position and user.position.name == "Admin"
+        is_admin = user.is_admin
         return is_assignee or is_admin
 
 
@@ -157,6 +156,10 @@ class WorkerDetailView(LoginRequiredMixin, generic.DetailView):
         non_completed_tasks = self.object.tasks.filter(
             is_completed=False
         )
+        completed_tasks = self.object.tasks.filter(
+            is_completed=True
+        )
 
         context["active_tasks"] = non_completed_tasks
+        context["completed_tasks"] = completed_tasks
         return context

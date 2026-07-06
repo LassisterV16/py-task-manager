@@ -18,5 +18,16 @@
     <p>This worker has no active tasks.</p>
   {% endif %}
 
+  {% if completed_tasks %}
+    <h6>Tasks completed:</h6>
+    <ul>
+      {% for task in completed_tasks %}
+        <li><a href="{% url 'task:task-detail' pk=task.id %}">{{ task }}</a></li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>This worker hasn't completed any tasks yet.</p>
+  {% endif %}
+
 
 {% endblock %}

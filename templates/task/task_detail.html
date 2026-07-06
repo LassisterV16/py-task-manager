@@ -4,11 +4,9 @@
   <h1 class="mb-3">
     {{ task.name }}
     {% if not task.is_completed %}
-      {% if request.user in task.assignees.all or request.user.position == "Admin" %}
-        <a href="{% url 'task:mark-task-completed' pk=task.id %}" class="btn btn-success link-to-page">
-          Mark as completed
-        </a>
-      {% endif %}
+      <span class="badge badge-warning align-middle ml-2">In progress</span>
+    {% else %}
+      <span class="badge badge-success align-middle ml-2">Completed</span>
     {% endif %}
   </h1>
 
@@ -23,8 +21,13 @@
 
   <div class="lead text-justify font-weight-normal mb-3">{{ task.description }}</div>
 
-  {% if request.user in task.assignees.all or request.user.position == "Admin" %}
-    <a class="btn btn-outline-primary mr-3" href="{% url 'task:task-update' pk=task.id %}">Update</a>
+  {% if request.user in task.assignees.all or request.user.is_admin %}
+    {% if not task.is_completed %}
+      <a href="{% url 'task:mark-task-completed' pk=task.id %}" class="btn btn-outline-success mr-1">
+        Mark as completed
+      </a>
+    {% endif %}
+    <a class="btn btn-outline-primary mr-1" href="{% url 'task:task-update' pk=task.id %}">Update</a>
     <a class="btn btn-outline-danger" href="{% url 'task:task-delete' pk=task.id %}?next={{ request.path }}">Delete</a>
   {% endif %}
 

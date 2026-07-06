@@ -25,8 +25,12 @@ class Worker(AbstractUser):
         blank=True,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.username} ({self.first_name} {self.last_name})"
+
+    @property
+    def is_admin(self) -> bool:
+        return bool(self.position and self.position.name == "Admin")
 
 
 class Task(models.Model):
