@@ -32,6 +32,12 @@ class Worker(AbstractUser):
     def is_admin(self) -> bool:
         return bool(self.position and self.position.name == "Admin")
 
+    @property
+    def full_name(self) -> str:
+        if self.first_name or self.last_name:
+            return f"{self.first_name} {self.last_name}".strip()
+        return ""
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)

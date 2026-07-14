@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views import generic
 
 from task.forms import (
@@ -13,7 +13,7 @@ from task.forms import (
     TaskNameSearchForm,
     WorkerNameUsernameSearchForm
 )
-from task.models import Task
+from task.models import Task, Worker
 
 
 @login_required
@@ -21,6 +21,7 @@ def index(request: HttpRequest) -> HttpResponse:
     today = timezone.localdate()
 
     num_tasks = Task.objects.count()
+    num_workers = Worker.objects.count()
     completed_tasks = Task.objects.filter(is_completed=True).count()
     tasks_in_progress = Task.objects.filter(
         is_completed=False, deadline__gte=today
@@ -31,6 +32,7 @@ def index(request: HttpRequest) -> HttpResponse:
 
     context = {
         "num_tasks": num_tasks,
+        "num_workers": num_workers,
         "completed_tasks": completed_tasks,
         "tasks_in_progress": tasks_in_progress,
         "failed_deadlines": failed_deadlines,
@@ -77,9 +79,9 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
 
 @login_required
 def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
-    task = Task.objects.get(id=pk)
+    task = get_object_or_404(Task, id=pk)
     user = request.user
-    is_assignee = user in task.assignees.all()
+    is_assignee = task.assignees.filter(id=user.id).exists()
     is_admin = user.is_admin
     if not task.is_completed and (is_assignee or is_admin):
         task.is_completed = True
@@ -107,9 +109,7 @@ class TaskUpdateView(
     def test_func(self):
         task = self.get_object()
         user = self.request.user
-        is_assignee = user in task.assignees.all()
-        is_admin = user.is_admin
-        return is_assignee or is_admin
+        return task.assignees.filter(id=user.id).exists() or user.is_admin
 
 
 class TaskDeleteView(
@@ -123,9 +123,7 @@ class TaskDeleteView(
     def test_func(self):
         task = self.get_object()
         user = self.request.user
-        is_assignee = user in task.assignees.all()
-        is_admin = user.is_admin
-        return is_assignee or is_admin
+        return task.assignees.filter(id=user.id).exists() or user.is_admin
 
 
 class WorkerListView(LoginRequiredMixin, generic.ListView):

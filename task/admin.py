@@ -54,6 +54,6 @@ class TagAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     search_fields = ("name", "description",)
     list_filter = ("deadline", "is_completed", "priority", "task_type")
-    list_display = admin.ModelAdmin.list_display + (
-        "task_type", "deadline", "is_completed", "priority",
+    list_display = (
+        "name", "task_type", "deadline", "is_completed", "priority"
     )
