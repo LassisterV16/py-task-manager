@@ -2,54 +2,87 @@
 {% load crispy_forms_filters %}
 
 {% block content %}
-  <h1>
-    Tasks
-    <a href="{% url 'task:task-create' %}" class="btn btn-primary link-to-page">
-      Create
-    </a>
-  </h1>
+  <div class="py-4">
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+      <div class="mb-3 mb-lg-0">
+        <h1 class="h4">Tasks</h1>
+      </div>
+      <div>
+        <a href="{% url 'task:task-create' %}" class="btn btn-sm btn-gray-800 d-inline-flex align-items-center">
+          Create task
+        </a>
+      </div>
+    </div>
+  </div>
 
-  <form class="form-inline mb-3" method="get" action="">
-    {{ search_form|crispy }}
-    <input type="submit" value="🔎" class="btn btn-secondary">
-  </form>
+  <div class="card border-0 shadow mb-4">
+    <div class="card-body">
+      <form class="form-inline mb-3" method="get" action="">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="input-group input-group-merge search-bar">
+              <button type="submit" class="input-group-text" id="topbar-addon" style="border-right: 0; background: none;">
+                <svg class="icon icon-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                </svg>
+              </button>
+              <input type="text"
+               name="name"
+               value="{{ request.GET.name|default:'' }}"
+               class="form-control"
+               id="topbarInputIconLeft"
+               placeholder="Search by task name"
+               aria-label="Search"
+               aria-describedby="topbar-addon">
+            </div>
+          </div>
+        </div>
+      </form>
 
-  {% if task_list %}
-    <table class="table">
-      <tr>
-        <th>Name</th>
-        <th>Deadline</th>
-        <th class="text-center">Priority</th>
-        <th class="text-center">Actions</th>
-      </tr>
+      {% if task_list %}
+        <div class="table-responsive">
+          <table class="table table-hover align-items-center">
+            <thead class="thead-light">
+              <tr>
+                <th>Name</th>
+                <th>Deadline</th>
+                <th class="text-center">Priority</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
 
-      {% for task in task_list %}
-        <tr>
-          <td>
-            <a href="{% url 'task:task-detail' pk=task.id %}">{{ task.name }}</a><br>
-            {% for tag in task.tags.all %}
-              <a href="{% url 'task:task-list' %}?tag={{ tag.name }}">
-                <span class="badge badge-secondary mr-1">{{ tag.name }}</span>
-              </a>
-            {% endfor %}
-          </td>
-          <td>
-            {{ task.deadline }}
-          </td>
-          <td class="text-center">
-            {{ task.priority }}
-          </td>
-          <td class="text-center">
-            {% if request.user in task.assignees.all or request.user.is_admin %}
-              <a href="{% url 'task:task-update' pk=task.id %}?next={{ request.get_full_path }}">Update</a>
-              <a style="color: red" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
+            <tbody>
+              {% for task in task_list %}
+                <tr>
+                  <td class="border-0">
+                    <a class="fw-bold text-gray-900" href="{% url 'task:task-detail' pk=task.id %}">{{ task.name }}</a><br>
+                    {% for tag in task.tags.all %}
+                      <a href="{% url 'task:task-list' %}?tag={{ tag.name }}">
+                        <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+                      </a>
+                    {% endfor %}
+                  </td>
+                  <td class="border-0">
+                    {{ task.deadline }}
+                  </td>
+                  <td class="text-center border-0">
+                    {{ task.priority }}
+                  </td>
+                  <td class="text-center border-0">
+                    {% if request.user in task.assignees.all or request.user.is_admin %}
+                      <a href="{% url 'task:task-update' pk=task.id %}?next={{ request.get_full_path }}">Update</a>
+                      <a style="color: red" href="{% url 'task:task-delete' pk=task.id %}">Delete</a>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
-  {% else %}
-      <p>There are no tasks in the TaskFlow.</p>
-  {% endif %}
+      {% else %}
+          <p>There are no tasks in the TaskFlow.</p>
+      {% endif %}
+    </div>
+  </div>
 {% endblock %}
