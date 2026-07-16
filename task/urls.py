@@ -1,19 +1,19 @@
 from django.urls import path
 
 from task.views import (
-    index,
     TaskListView,
     TaskCreateView,
     TaskUpdateView,
     TaskDeleteView,
     TaskDetailView,
-    mark_task_completed,
     WorkerListView,
     WorkerDetailView,
+    IndexView,
+    TaskMarkCompletedView,
 )
 
 urlpatterns = [
-    path("", index, name="index"),
+    path("", IndexView.as_view(), name="index"),
     path("tasks/", TaskListView.as_view(), name="task-list"),
     path(
         "tasks/<int:pk>/",
@@ -22,7 +22,7 @@ urlpatterns = [
     ),
     path(
         "task/<int:pk>/mark-task-completed/",
-        mark_task_completed,
+        TaskMarkCompletedView.as_view(),
         name="mark-task-completed"
     ),
     path(

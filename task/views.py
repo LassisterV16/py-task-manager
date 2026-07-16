@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.views import generic
 
 from task.forms import (
@@ -16,29 +16,24 @@ from task.forms import (
 from task.models import Task, Worker
 
 
-@login_required
-def index(request: HttpRequest) -> HttpResponse:
-    today = timezone.localdate()
+class IndexView(LoginRequiredMixin, generic.TemplateView):
+    template_name = "task/index.html"
 
-    num_tasks = Task.objects.count()
-    num_workers = Worker.objects.count()
-    completed_tasks = Task.objects.filter(is_completed=True).count()
-    tasks_in_progress = Task.objects.filter(
-        is_completed=False, deadline__gte=today
-    ).count()
-    failed_deadlines = Task.objects.filter(
-        is_completed=False, deadline__lt=today
-    ).count()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        today = timezone.localdate()
 
-    context = {
-        "num_tasks": num_tasks,
-        "num_workers": num_workers,
-        "completed_tasks": completed_tasks,
-        "tasks_in_progress": tasks_in_progress,
-        "failed_deadlines": failed_deadlines,
-    }
+        context["num_tasks"] = Task.objects.count()
+        context["num_workers"] = Worker.objects.count()
+        context["completed_tasks"] = Task.objects.filter(is_completed=True).count()
+        context["tasks_in_progress"] = Task.objects.filter(
+            is_completed=False, deadline__gte=today
+        ).count()
+        context["failed_deadlines"] = Task.objects.filter(
+            is_completed=False, deadline__lt=today
+        ).count()
 
-    return render(request, "task/index.html", context=context)
+        return context
 
 
 class TaskListView(LoginRequiredMixin, generic.ListView):
@@ -77,16 +72,17 @@ class TaskDetailView(LoginRequiredMixin, generic.DetailView):
     model = Task
 
 
-@login_required
-def mark_task_completed(request: HttpRequest, pk: int) -> HttpResponse:
-    task = get_object_or_404(Task, id=pk)
-    user = request.user
-    is_assignee = task.assignees.filter(id=user.id).exists()
-    is_admin = user.is_admin
-    if not task.is_completed and (is_assignee or is_admin):
-        task.is_completed = True
-        task.save()
-    return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
+class TaskMarkCompletedView(LoginRequiredMixin, generic.View):
+    def get(self, request: HttpRequest, pk: int) -> HttpResponse:
+        task = get_object_or_404(Task, id=pk)
+        user = request.user
+        is_assignee = task.assignees.filter(id=user.id).exists()
+        is_admin = user.is_admin
+
+        if not task.is_completed and (is_assignee or is_admin):
+            task.is_completed = True
+            task.save()
+        return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
 
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
