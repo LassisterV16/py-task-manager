@@ -25,7 +25,9 @@ class IndexView(LoginRequiredMixin, generic.TemplateView):
 
         context["num_tasks"] = Task.objects.count()
         context["num_workers"] = Worker.objects.count()
-        context["completed_tasks"] = Task.objects.filter(is_completed=True).count()
+        context["completed_tasks"] = Task.objects.filter(
+            is_completed=True
+        ).count()
         context["tasks_in_progress"] = Task.objects.filter(
             is_completed=False, deadline__gte=today
         ).count()
@@ -82,7 +84,9 @@ class TaskMarkCompletedView(LoginRequiredMixin, generic.View):
         if not task.is_completed and (is_assignee or is_admin):
             task.is_completed = True
             task.save()
-        return HttpResponseRedirect(reverse_lazy("task:task-detail", args=[pk]))
+        return HttpResponseRedirect(
+            reverse_lazy("task:task-detail", args=[pk])
+        )
 
 
 class TaskCreateView(LoginRequiredMixin, generic.CreateView):
