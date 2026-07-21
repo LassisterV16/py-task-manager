@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="py-4">
+    <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+      <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'task:task-list' %}">Tasks</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Task Details</li>
+      </ol>
+    </nav>
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+      <div class="mb-3 mb-lg-0">
+        <h1 class="h4">
+          Task: {{ task.name }}
+          {% if not task.is_completed %}
+            <span class="badge bg-warning align-middle ms-2">In progress</span>
+          {% else %}
+            <span class="badge bg-success align-middle ms-2">Completed</span>
+          {% endif %}
+        </h1>
+      </div>
+      <div>
+        {% if request.user in task.assignees.all or request.user.is_admin %}
+          {% if not task.is_completed %}
+            <a href="{% url 'task:mark-task-completed' pk=task.id %}" class="btn btn-outline-success me-1">
+              Mark as completed
+            </a>
+          {% endif %}
+          <a class="btn btn-outline-primary me-1" href="{% url 'task:task-update' pk=task.id %}?next={{ request.get_full_path }}">Update</a>
+          <a class="btn btn-outline-danger" href="{% url 'task:task-delete' pk=task.id %}?next={{ request.path }}">Delete</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-12 col-xl-8">
+      <div class="card card-body border-0 shadow mb-4">
+        <h2 class="h5 mb-4">Task Description</h2>
+        <p class="text-gray-700">
+          {{ task.description|default:"No description provided for this task." }}
+        </p>
+
+        <div class="mt-4">
+          <h2 class="h6 mb-2">Tags</h2>
+          {% for tag in task.tags.all %}
+            <span class="badge bg-secondary me-1">{{ tag.name }}</span>
+          {% empty %}
+            <span class="text-muted text-small">No tags assigned.</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-4">
+      <div class="card card-body border-0 shadow mb-4">
+        <h2 class="h5 mb-4">Metadata</h2>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-0 pb-3">
+            <div>
+              <h3 class="h6 mb-1">Priority</h3>
+              <p class="small pe-4 text-gray-500">Importance levels</p>
+            </div>
+            <div>
+              <span class="badge {% if task.priority == 'Urgent' %}bg-danger{% elif task.priority == 'High' %}bg-warning{% else %}bg-info{% endif %}">
+                {{ task.priority }}
+              </span>
+            </div>
+          </li>
+
+          <li class="list-group-item d-flex align-items-center justify-content-between px-0 border-0 py-3">
+            <div>
+              <h3 class="h6 mb-1">Deadline</h3>
+              <p class="small pe-4 text-gray-500">Due date for completion</p>
+            </div>
+            <div>
+              <span class="text-gray-700 font-small fw-bold">{{ task.deadline }}</span>
+            </div>
+          </li>
+
+          <li class="list-group-item px-0 border-0 pt-3">
+            <h3 class="h6 mb-2">Assignees</h3>
+            <div class="d-flex flex-column">
+              {% for worker in task.assignees.all %}
+                <div class="d-flex align-items-center mb-2">
+                  <div class="avatar-sm me-2 bg-gray-200 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <span class="text-gray-800 fw-bold text-uppercase font-small">
+                      {{ worker.username|slice:":2" }}
+                    </span>
+                  </div>
+                  <span class="text-gray-700 font-small">{{ worker.username }}</span>
+                </div>
+              {% empty %}
+                <span class="text-muted text-small">No workers assigned yet.</span>
+              {% endfor %}
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

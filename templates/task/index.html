@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="py-4">
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+      <div class="mb-3 mb-lg-0">
+        <h1 class="h4">TaskFlow Dashboard</h1>
+        <p class="mb-0 text-muted">Welcome to the main page with tasks statistics.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+      <div class="card border-0 shadow">
+        <div class="card-body">
+          <div class="d-block">
+            <div class="h6 fw-normal text-gray-500 mb-2">Total Tasks</div>
+            <div class="h3 fw-extrabold text-dark">{{ num_tasks }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+      <div class="card border-0 shadow">
+        <div class="card-body">
+          <div class="d-block">
+            <div class="h6 fw-normal text-gray-500 mb-2">Completed</div>
+            <div class="h3 fw-extrabold text-success">{{ completed_tasks }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+      <div class="card border-0 shadow">
+        <div class="card-body">
+          <div class="d-block">
+            <div class="h6 fw-normal text-gray-500 mb-2">In Progress</div>
+            <div class="h3 fw-extrabold text-warning">{{ tasks_in_progress }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+      <div class="card border-0 shadow">
+        <div class="card-body">
+          <div class="d-block">
+            <div class="h6 fw-normal text-gray-500 mb-2">Failed Deadlines</div>
+            <div class="h3 fw-extrabold text-danger">{{ failed_deadlines }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3 mb-4">
+      <div class="card border-0 shadow">
+        <div class="card-body">
+          <div class="d-block">
+            <div class="h6 fw-normal text-gray-500 mb-2">Total workers</div>
+            <div class="h3 fw-extrabold text-info">{{ num_workers }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

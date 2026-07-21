@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load crispy_forms_filters %}
+
+{% block content %}
+  <div class="py-4">
+    <nav aria-label="breadcrumb" class="d-none d-md-inline-block">
+      <ol class="breadcrumb breadcrumb-dark breadcrumb-transparent">
+        <li class="breadcrumb-item"><a href="{% url 'task:task-list' %}">Tasks</a></li>
+        <li class="breadcrumb-item active" aria-current="page">
+          {{ object|yesno:"Update Task,Create Task" }}
+        </li>
+      </ol>
+    </nav>
+    <div class="d-flex justify-content-between w-100 flex-wrap">
+      <div class="mb-3 mb-lg-0">
+        <h1 class="h4">{{ object|yesno:"Update,Create" }} task</h1>
+      </div>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+      <div class="card card-body border-0 shadow mb-4">
+        <h2 class="h5 mb-4">Task Information</h2>
+
+        <form id="task-form" method="post" action="" novalidate>
+          {% csrf_token %}
+
+          <div class="mb-3">
+            {{ form.name|as_crispy_field }}
+          </div>
+
+          <div class="mb-4">
+            {{ form.description|as_crispy_field }}
+          </div>
+
+          <hr class="my-4 text-gray-300">
+
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              {{ form.deadline|as_crispy_field }}
+            </div>
+            <div class="col-md-4 mb-3">
+              {{ form.priority|as_crispy_field }}
+            </div>
+            <div class="col-md-4 mb-3">
+              {{ form.task_type|as_crispy_field }}
+            </div>
+          </div>
+
+          <hr class="my-4 text-gray-300">
+
+          <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+              <div class="p-3 bg-light rounded border border-gray-200" style="min-height: 200px;">
+                {{ form.assignees|as_crispy_field }}
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="p-3 bg-light rounded border border-gray-200" style="min-height: 200px;">
+                {{ form.tags|as_crispy_field }}
+              </div>
+            </div>
+          </div>
+
+          {% if form.is_completed %}
+            <div class="mb-4">
+              <div class="card border-1 border-warning bg-soft-warning p-3">
+                <div class="form-check form-switch m-0">
+                  {{ form.is_completed|as_crispy_field }}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-end align-items-center">
+            <a href="{% url 'task:task-list' %}" class="btn btn-link text-gray-600 me-3">Cancel</a>
+            <button type="submit" class="btn btn-gray-800 px-4">Save Task</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
