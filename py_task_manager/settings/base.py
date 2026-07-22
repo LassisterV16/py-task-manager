@@ -2,15 +2,12 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "fallback-key-if-env-is-missing")
-
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
-
-ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -26,6 +23,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -54,13 +52,6 @@ TEMPLATES = [
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 WSGI_APPLICATION = "py_task_manager.wsgi.application"
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
