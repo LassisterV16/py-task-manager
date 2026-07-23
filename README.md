@@ -2,10 +2,21 @@
 
 TaskFlow is a simple and clean web application to manage tasks and team members. It helps companies track their projects, assign tasks to workers, and monitor deadlines.
 
+---
+
+### 🚀 Live Demo
+* **Website:** [TaskFlow Live Application](https://taskflow-y9zm.onrender.com)
+* **Demo Account:** 
+  * **Username:** `user`
+  * **Password:** `user12345`
+
+---
+
 ## Tech Stack
 * **Backend:** Python / Django
 * **Frontend:** HTML, CSS (Bootstrap-based template)
-* **Database:** SQLite
+* **Database:** PostgreSQL (Production) / SQLite (Local Dev)
+* **Deployment:** Render
 
 ---
 
